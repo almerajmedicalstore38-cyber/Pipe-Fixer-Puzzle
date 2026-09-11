@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "174517837795",
+    "project_id": "coin-wallet-pro",
+    "storage_bucket": "coin-wallet-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:174517837795:android:ce99e069821f398b420ad6",
+        "android_client_info": {
+          "package_name": "com.shteditor.pipefixerpuzzle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIgBbWMt5KEm7yrSjfn00GtmZ0T5AlVxE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
