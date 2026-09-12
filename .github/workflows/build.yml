@@ -2,13 +2,13 @@ name: Build APK Final
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     steps:
       - uses: actions/checkout@v4
 
@@ -16,17 +16,16 @@ jobs:
         run: |
           mkdir -p assets
           touch assets/.nomedia
-          echo "Assets fixed"
 
-      - name: Build with Buildozer Action - AUTO FIX SDK
+      - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         with:
-          workdir:.
+          workdir: .
           buildozer_version: master
           command: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: PipeFixer-Puzzle-APK
+          name: PipeFixer-APK
           path: bin/*.apk
