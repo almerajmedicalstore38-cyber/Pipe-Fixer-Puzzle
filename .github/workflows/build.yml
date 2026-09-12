@@ -28,30 +28,40 @@ jobs:
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Install Dependencies
+      - name: Install Buildozer MASTER - BUG FIX
         run: |
           sudo apt update
           sudo apt install -y zip unzip libffi-dev libssl-dev
-
-      - name: Install Buildozer
-        run: |
           pip install --upgrade pip
-          pip install buildozer cython==0.29.33
+          pip install https://github.com/kivy/buildozer/archive/master.zip
+          pip install cython==0.29.33
 
-      - name: Accept Android Licenses - MAIN FIX
+      - name: Fix sdkmanager Path - MAIN FIX
         run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          # Buildozer ko pehle se SDK download karne do taake license folder bane
-          buildozer init || true
-          # License files banao
+          # Buildozer ko SDK ka structure banane do
+          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+          
+          # Agar cmdline-tools nahi hai to download karo
+          cd /tmp
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
+          unzip -q tools.zip
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+          cp -r cmdline-tools/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ 2>/dev/null || true
+          cp -r cmdline-tools/lib ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ 2>/dev/null || true
+          
+          # Purane path ke liye symlink banao - Yahi bug fix hai
+          cp ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
+          chmod +x ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          chmod +x ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          
+          # Licenses accept karo
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1051b8ea11e4b" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
-          # sdkmanager se licenses accept
+          
           yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;33.0.2" || true
 
       - name: Build APK
         run: |
