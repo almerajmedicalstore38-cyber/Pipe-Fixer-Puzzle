@@ -17,7 +17,9 @@ android.accept_sdk_license_agreement = True
 android.archs = arm64-v8a
 p4a.bootstrap = sdl2
 p4a.branch = master
-p4a.ndk_api = 21
+p4a.sdk_dir = /usr/local/lib/android/sdk
+p4a.ndk_dir = /usr/local/lib/android/sdk/ndk/23.1.7779620
+p4a.ant_dir = /usr/share/ant
 
 [buildozer]
 log_level = 2
