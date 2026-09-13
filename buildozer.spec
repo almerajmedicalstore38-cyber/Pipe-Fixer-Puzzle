@@ -6,20 +6,19 @@ source.dir =.
 source.include_exts = py,png,jpg,json,wav,mp3
 source.include_patterns = assets/*
 version = 1.5
-requirements = python3,sdl2,sdl2_image,sdl2_mixer,sdl2_ttf,pygame==2.5.2
+requirements = python3,pygame==2.6.1
 orientation = portrait
 android.permissions = INTERNET
-android.api = 32
+android.api = 33
 android.minapi = 21
-android.ndk = 23b
-android.sdk_build_tools_version = 32.0.0
+android.ndk = 28c
+android.sdk_build_tools_version = 33.0.2
 android.accept_sdk_license_agreement = True
 android.archs = arm64-v8a
 p4a.bootstrap = sdl2
 p4a.branch = master
 p4a.sdk_dir = /usr/local/lib/android/sdk
-p4a.ndk_dir = /usr/local/lib/android/sdk/ndk/23.1.7779620
-p4a.ant_dir = /usr/share/ant
+p4a.ndk_dir = /usr/local/lib/android/sdk/ndk/28.1.13356709
 
 [buildozer]
 log_level = 2
