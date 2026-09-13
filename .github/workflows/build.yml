@@ -40,7 +40,7 @@ jobs:
           pip install cython==0.29.36
           pip3 install cython==0.29.36
           sudo apt-get update -y
-          sudo apt-get install -y cython3 python3-dev libffi-dev
+          sudo apt-get install -y cython3 python3-dev libffi-dev libssl-dev
 
       - name: Setup SDK NDK 28c
         run: |
@@ -54,7 +54,6 @@ jobs:
           yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
           /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;28.1.13356709"
           pip install https://github.com/kivy/buildozer/archive/master.zip
-          # System SDK me wrapper banao
           sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
           sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
           sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
@@ -64,22 +63,14 @@ jobs:
         run: |
           rm -rf /home/runner/.buildozer/
           mkdir -p /home/runner/.buildozer/android/platform/
-          # System SDK ko Buildozer ke folder se link karo
           ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
-          # NDK ko bhi link karo taake dubara download na ho
           ln -sfn /usr/local/lib/android/sdk/ndk/28.1.13356709 /home/runner/.buildozer/android/platform/android-ndk-r28c
-          # *** YAHI MAIN FIX HAI ***
           mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin
-          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
-          cp /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
           echo '#!/bin/bash' > /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
           echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
           chmod +x /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          chmod +x /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
-          # Licenses copy karo
           mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
           cp -r /usr/local/lib/android/sdk/licenses/* /home/runner/.buildozer/android/platform/android-sdk/licenses/ || true
-          
           buildozer android debug
 
       - name: Upload APK
