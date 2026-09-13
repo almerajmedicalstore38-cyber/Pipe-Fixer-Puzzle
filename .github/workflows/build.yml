@@ -12,7 +12,7 @@ jobs:
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/23.1.7779620
+      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/28.1.13356709
 
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,21 @@ jobs:
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Setup SDK NDK
+      - name: Install Cython Everywhere - MAIN FIX
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cython==0.29.36
+          pip install cython==0.29.36
+          pip3 install cython==0.29.36
+          sudo pip3 install cython==0.29.36 || true
+          sudo apt-get update -y
+          sudo apt-get install -y cython3 python3-dev libffi-dev libssl-dev
+          which cython
+          cython --version
+          python -c "import Cython; print(Cython.__version__)"
+          python3 -c "import Cython; print(Cython.__version__)"
+
+      - name: Setup SDK NDK 28c
         run: |
           mkdir -p /usr/local/lib/android/sdk/licenses
           mkdir -p /home/runner/.android
@@ -43,25 +57,26 @@ jobs:
           echo "24333f8a63b6825ea9c5514f83c1051b8ea11e4b" >> /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "y" > /usr/local/lib/android/sdk/licenses/android-sdk-preview-license
           yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-32" "build-tools;32.0.0" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;23.1.7779620"
-          sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
-          sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
-          sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
-          sudo chmod +x /usr/local/lib/android/sdk/tools/bin/sdkmanager
-          pip install --upgrade pip
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;28.1.13356709"
           pip install https://github.com/kivy/buildozer/archive/master.zip
-          pip install cython==0.29.33
 
       - name: Build APK
         run: |
-          # Buildozer ka apna SDK folder delete karke system wale se link karo
-          rm -rf /home/runner/.buildozer/android/platform/android-sdk
+          rm -rf /home/runner/.buildozer/
           mkdir -p /home/runner/.buildozer/android/platform/
           ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
-          buildozer android debug
+          buildozer android debug --verbose
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: PipeFixer-APK
           path: bin/*.apk
+
+      - name: Upload Log on Fail
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fail-log
+          path: /home/runner/.buildozer/logs/
