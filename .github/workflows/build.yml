@@ -32,16 +32,12 @@ jobs:
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Fix SDK and Install NDK 23b
+      - name: Prepare SDK
         run: |
           sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
           sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
-          sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager $@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
+          sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
           sudo chmod +x /usr/local/lib/android/sdk/tools/bin/sdkmanager
-          sudo chmod +x /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager
-          mkdir -p /home/runner/.buildozer/android/platform
-          rm -rf /home/runner/.buildozer/android/platform/android-sdk
-          ln -s /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
           mkdir -p /home/runner/.android
           touch /home/runner/.android/repositories.cfg
           yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
@@ -52,6 +48,21 @@ jobs:
 
       - name: Build APK
         run: |
+          # YAHI MAIN FIX HAI - Har bar build se pehle sdkmanager ka wrapper banao
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+          cp /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager || true
+          cp /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
+          echo '#!/bin/bash' > /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          chmod +x /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          chmod +x /home/runner/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          
+          # NDK ka link banao taake Buildozer dubara download na kare
+          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/ndk/
+          ln -sfn /usr/local/lib/android/sdk/ndk/23.1.7779620 /home/runner/.buildozer/android/platform/android-sdk/ndk/23b || true
+          ln -sfn /usr/local/lib/android/sdk/ndk/23.1.7779620 /home/runner/.buildozer/android/platform/android-sdk/ndk/23.1.7779620 || true
+          
           buildozer android debug
 
       - name: Upload APK
