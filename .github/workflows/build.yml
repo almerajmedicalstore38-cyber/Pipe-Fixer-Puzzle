@@ -12,6 +12,7 @@ jobs:
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/23.1.7779620
 
     steps:
       - uses: actions/checkout@v4
@@ -32,21 +33,17 @@ jobs:
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Fix SDK and Licenses
+      - name: Setup SDK NDK
         run: |
-          # License folder banao
           mkdir -p /usr/local/lib/android/sdk/licenses
           mkdir -p /home/runner/.android
           touch /home/runner/.android/repositories.cfg
-          # Sab licenses accept karo
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1051b8ea11e4b" >> /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "y" > /usr/local/lib/android/sdk/licenses/android-sdk-preview-license
-          # AIDL ke liye Build-Tools 37 install karo
-          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-32" "platforms;android-33" "build-tools;32.0.0" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;23.1.7779620"
-          # Wrapper banao
+          yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-32" "build-tools;32.0.0" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;23.1.7779620"
           sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
           sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
           sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
@@ -57,18 +54,10 @@ jobs:
 
       - name: Build APK
         run: |
-          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/tools/bin
-          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/licenses
-          cp -r /usr/local/lib/android/sdk/licenses/* /home/runner/.buildozer/android/platform/android-sdk/licenses/ || true
-          cp /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
-          echo '#!/bin/bash' > /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          echo 'exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "$@"' >> /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          chmod +x /home/runner/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          mkdir -p /home/runner/.buildozer/android/platform/android-sdk/ndk/
-          ln -sfn /usr/local/lib/android/sdk/ndk/23.1.7779620 /home/runner/.buildozer/android/platform/android-sdk/ndk/23b || true
-          ln -sfn /usr/local/lib/android/sdk/ndk/23.1.7779620 /home/runner/.buildozer/android/platform/android-sdk/ndk/23.1.7779620 || true
-          ln -sfn /usr/local/lib/android/sdk/build-tools /home/runner/.buildozer/android/platform/android-sdk/build-tools || true
-          ln -sfn /usr/local/lib/android/sdk/platforms /home/runner/.buildozer/android/platform/android-sdk/platforms || true
+          # Buildozer ka apna SDK folder delete karke system wale se link karo
+          rm -rf /home/runner/.buildozer/android/platform/android-sdk
+          mkdir -p /home/runner/.buildozer/android/platform/
+          ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
           buildozer android debug
 
       - name: Upload APK
