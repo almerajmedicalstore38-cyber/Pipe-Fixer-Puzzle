@@ -12,7 +12,6 @@ jobs:
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
-      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/28.1.13356709
 
     steps:
       - uses: actions/checkout@v4
@@ -37,12 +36,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install cython==0.29.36
-          pip install cython==0.29.36
-          pip3 install cython==0.29.36
-          sudo apt-get update -y
-          sudo apt-get install -y cython3 python3-dev libffi-dev libssl-dev
+          pip install https://github.com/kivy/buildozer/archive/master.zip
 
-      - name: Setup SDK NDK 28c
+      - name: Setup SDK NDK 25b - Purana Stable
         run: |
           mkdir -p /usr/local/lib/android/sdk/licenses
           mkdir -p /home/runner/.android
@@ -50,10 +46,8 @@ jobs:
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> /usr/local/lib/android/sdk/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1051b8ea11e4b" >> /usr/local/lib/android/sdk/licenses/android-sdk-license
-          echo "y" > /usr/local/lib/android/sdk/licenses/android-sdk-preview-license
           yes | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" "ndk;28.1.13356709"
-          pip install https://github.com/kivy/buildozer/archive/master.zip
+          /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "platform-tools" "ndk;25.1.8937393"
           sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
           sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
           sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
@@ -62,16 +56,6 @@ jobs:
       - name: Build APK
         run: |
           rm -rf /home/runner/.buildozer/
-          mkdir -p /home/runner/.buildozer/android/platform/
-          ln -sfn /usr/local/lib/android/sdk /home/runner/.buildozer/android/platform/android-sdk
-          ln -sfn /usr/local/lib/android/sdk/ndk/28.1.13356709 /home/runner/.buildozer/android/platform/android-ndk-r28c
-          sudo mkdir -p /usr/local/lib/android/sdk/tools/bin
-          sudo bash -c 'echo "#!/bin/bash" > /usr/local/lib/android/sdk/tools/bin/sdkmanager'
-          sudo bash -c 'echo "exec /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager \$@" >> /usr/local/lib/android/sdk/tools/bin/sdkmanager'
-          sudo chmod +x /usr/local/lib/android/sdk/tools/bin/sdkmanager
-          sudo chmod +x /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager
-          sudo mkdir -p /usr/local/lib/android/sdk/licenses
-          sudo cp -r /usr/local/lib/android/sdk/licenses/* /usr/local/lib/android/sdk/licenses/ || true
           buildozer android debug
 
       - name: Upload APK
