@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Free Disk Space
+      - name: Free Disk Space & Remove Default NDKs
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
           sudo rm -rf /usr/local/lib/android/sdk/ndk/*
@@ -49,20 +49,23 @@ jobs:
           python -m pip install cython==0.29.36
           pip install https://github.com/kivy/buildozer/archive/master.zip
 
-      - name: Setup SDK, NDK & Force Licenses
+      - name: Pre-Accept Android SDK Licenses
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393" "platform-tools"
-          
           mkdir -p $ANDROID_HOME/licenses
           mkdir -p ~/.android
-          echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c1051b8ea11e4b\n247312672732b264d1291c411c59304bb7d3244c\n84831b94fe1160d296d4256549977f6d9961316e" > $ANDROID_HOME/licenses/android-sdk-license
-          echo -e "\n84831b94fe1160d296d4256549977f6d9961316e" > $ANDROID_HOME/licenses/android-sdk-preview-license
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+
+          LIC_DATA=$'247312672732b264d1291c411c59304bb7d3244c\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c1051b8ea11e4b\n84831b94fe1160d296d4256549977f6d9961316e\n73f7d9d5780c0916ef0e8b6134b3255cf35099d1'
+          
+          echo "$LIC_DATA" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "$LIC_DATA" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393" || true
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build APK
         run: |
-          rm -rf ~/.buildozer/
           buildozer android debug
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
