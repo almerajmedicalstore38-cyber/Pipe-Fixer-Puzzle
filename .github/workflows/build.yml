@@ -54,7 +54,6 @@ jobs:
           export ANDROID_HOME=/usr/local/lib/android/sdk
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393" "platform-tools"
           
-          # Force accept all licenses globally
           mkdir -p $ANDROID_HOME/licenses
           mkdir -p ~/.android
           echo -e "\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c1051b8ea11e4b\n247312672732b264d1291c411c59304bb7d3244c\n84831b94fe1160d296d4256549977f6d9961316e" > $ANDROID_HOME/licenses/android-sdk-license
@@ -64,7 +63,7 @@ jobs:
       - name: Build APK
         run: |
           rm -rf ~/.buildozer/
-          buildozer --sdk_dir /usr/local/lib/android/sdk --ndk_dir /usr/local/lib/android/sdk/ndk/25.1.8937393 android debug
+          buildozer android debug
         env:
           ANDROID_HOME: /usr/local/lib/android/sdk
           ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
