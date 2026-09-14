@@ -37,6 +37,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools-version: '34.0.0'
+
       - name: Create Assets
         run: |
           mkdir -p assets
