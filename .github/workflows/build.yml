@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Free Disk Space & Remove Default NDKs
+      - name: Free Disk Space & Clean Old SDK
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
           sudo rm -rf /usr/local/lib/android/sdk/ndk/*
@@ -49,11 +49,12 @@ jobs:
           python -m pip install cython==0.29.36
           pip install https://github.com/kivy/buildozer/archive/master.zip
 
-      - name: Setup SDK & NDK 25b
+      - name: Setup SDK, NDK & Accept ALL Licenses
         run: |
           export ANDROID_HOME=/usr/local/lib/android/sdk
           mkdir -p $ANDROID_HOME/licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393" "platform-tools"
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build APK
