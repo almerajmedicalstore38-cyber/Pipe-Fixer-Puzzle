@@ -74,7 +74,7 @@ jobs:
             --package=com.sharafat.pipefixer \
             --name="Pipe Fixer" \
             --version=1.0 \
-            --version-code=1 \
+            --numeric-version=1 \
             --bootstrap=sdl2 \
             --requirements=python3,pygame,pyjnius,android \
             --arch=arm64-v8a \
