@@ -59,11 +59,16 @@ jobs:
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Install p4a & Cython - FIXED
+      - name: Install p4a & Cython - PATCHED
         run: |
           pip install --upgrade pip wheel setuptools
           pip install Cython==3.0.11
           pip install https://github.com/kivy/python-for-android/archive/develop.zip
+          # --- YEH MAIN FIX HAI ---
+          P4A_DIR=$(python3 -c "import pythonforandroid, os; print(os.path.dirname(pythonforandroid.__file__))")
+          echo "Patching hostpython3 recipe at $P4A_DIR"
+          sed -i 's/python -m build --wheel/python -m build --wheel --no-isolation/g' $P4A_DIR/recipes/hostpython3/__init__.py
+          grep -n "build --wheel" $P4A_DIR/recipes/hostpython3/__init__.py
 
       - name: Build APK
         run: |
