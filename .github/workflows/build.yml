@@ -17,6 +17,7 @@ jobs:
       - name: Free Disk Space
         run: |
           sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
+          rm -rf ~/.local/share/python-for-android
           df -h
 
       - name: Install System Dependencies
@@ -60,9 +61,9 @@ jobs:
 
       - name: Install p4a & Cython - FIXED
         run: |
-          pip install --upgrade pip wheel setuptools --no-input
-          pip install Cython==3.0.11 --no-input
-          pip install https://github.com/kivy/python-for-android/archive/develop.zip --no-input
+          pip install --upgrade pip wheel setuptools
+          pip install Cython==3.0.11
+          pip install https://github.com/kivy/python-for-android/archive/develop.zip
 
       - name: Build APK
         run: |
