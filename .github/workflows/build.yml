@@ -38,12 +38,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools-version: '34.0.0'
-
       - name: Create Assets
         run: |
           mkdir -p assets
@@ -66,7 +60,6 @@ jobs:
           --bootstrap=sdl2 \
           --requirements=python3,pygame,pyjnius,android \
           --arch=arm64-v8a \
-          --arch=armeabi-v7a \
           --permission INTERNET \
           --permission ACCESS_NETWORK_STATE \
           --icon=icon.png \
