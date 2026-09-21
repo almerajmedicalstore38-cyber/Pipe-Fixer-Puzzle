@@ -54,7 +54,7 @@ jobs:
           echo "ANDROID_HOME=$SDK_ROOT" >> $GITHUB_ENV
           echo "$SDK_ROOT/cmdline-tools/latest/bin:$SDK_ROOT/platform-tools" >> $GITHUB_PATH
 
-      - name: Create Assets
+      - name: Create Assets Nomedia
         run: |
           mkdir -p assets
           touch assets/.nomedia
@@ -80,8 +80,7 @@ jobs:
             --arch=arm64-v8a \
             --permission INTERNET \
             --permission ACCESS_NETWORK_STATE \
-            --icon=icon.png \
-            --sdk-dir $HOME/android-sdk \
+            --icon=assets/icon.png \
             --ndk-dir $HOME/android-sdk/ndk/25.1.8937393 \
             --android-api 33 \
             --copy-libs \
