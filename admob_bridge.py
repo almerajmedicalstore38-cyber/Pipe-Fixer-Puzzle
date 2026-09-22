@@ -1,4 +1,3 @@
-# admob_bridge.py - NATIVE ADMOB JAVA BRIDGE
 import os
 import time
 
@@ -10,33 +9,33 @@ try:
 except Exception as e:
     IS_ANDROID = False
 
-TEST_REWARDED_ID = "ca-app-pub-3940256099942544/5224354917"
-
-if IS_ANDROID:
-    PythonActivity = autoclass('org.kivy.android.PythonActivity')
-    AdRequest = autoclass('com.google.android.gms.ads.AdRequest$Builder')
-    RewardedAd = autoclass('com.google.android.gms.ads.rewarded.RewardedAd')
-    MobileAds = autoclass('com.google.android.gms.ads.MobileAds')
-
-    @run_on_ui_thread
-    def init_admob():
-        activity = PythonActivity.mActivity
-        MobileAds.initialize(activity)
-
-    @run_on_ui_thread
-    def load_and_show_rewarded_ad(on_reward_callback):
+def init_admob():
+    if IS_ANDROID:
         try:
-            activity = PythonActivity.mActivity
+            PythonActivity = autoclass('org.kivy.android.PythonActivity')
+            MobileAds = autoclass('com.google.android.gms.ads.MobileAds')
+            MobileAds.initialize(PythonActivity.mActivity)
+        except Exception as e:
+            print(f"[ADMOB INIT ERR] {e}")
+
+def load_and_show_rewarded_ad(on_reward_callback):
+    if IS_ANDROID:
+        try:
+            PythonActivity = autoclass('org.kivy.android.PythonActivity')
+            AdRequest = autoclass('com.google.android.gms.ads.AdRequest$Builder')
+            RewardedAd = autoclass('com.google.android.gms.ads.rewarded.RewardedAd')
+            
             builder = AdRequest()
             ad_request = builder.build()
+            test_id = "ca-app-pub-3940256099942544/5224354917"
 
             class RewardedCallback(PythonJavaClass):
                 __javainterfaces__ = ['com/google/android/gms/ads/rewarded/RewardedAdLoadCallback']
                 __javacontext__ = 'app'
 
-                def __init__(self, callback):
+                def __init__(self, cb):
                     super().__init__()
-                    self.callback = callback
+                    self.cb = cb
 
                 @java_method('(Lcom/google/android/gms/ads/rewarded/RewardedAd;)V')
                 def onAdLoaded(self, rewarded_ad):
@@ -44,31 +43,26 @@ if IS_ANDROID:
                         __javainterfaces__ = ['com/google/android/gms/ads/OnUserEarnedRewardListener']
                         __javacontext__ = 'app'
 
-                        def __init__(self, reward_cb):
+                        def __init__(self, r_cb):
                             super().__init__()
-                            self.reward_cb = reward_cb
+                            self.r_cb = r_cb
 
                         @java_method('(Lcom/google/android/gms/ads/rewarded/RewardItem;)V')
                         def onUserEarnedReward(self, reward_item):
-                            if self.reward_cb:
-                                self.reward_cb()
+                            if self.r_cb:
+                                self.r_cb()
 
-                    rewarded_ad.show(activity, ShowCallback(self.callback))
+                    rewarded_ad.show(PythonActivity.mActivity, ShowCallback(self.cb))
 
                 @java_method('(Lcom/google/android/gms/ads/LoadAdError;)V')
                 def onAdFailedToLoad(self, load_error):
-                    print(f"[ADMOB ERROR] {load_error.toString()}")
+                    print(f"[ADMOB LOAD FAIL] {load_error.toString()}")
 
-            RewardedAd.load(activity, TEST_REWARDED_ID, ad_request, RewardedCallback(on_reward_callback))
-
+            RewardedAd.load(PythonActivity.mActivity, test_id, ad_request, RewardedCallback(on_reward_callback))
         except Exception as ex:
-            print(f"[ADMOB EXCEPTION] {ex}")
-
-else:
-    def init_admob():
-        pass
-
-    def load_and_show_rewarded_ad(on_reward_callback):
+            print(f"[ADMOB SHOW EX] {ex}")
+            if on_reward_callback:
+                on_reward_callback()
+    else:
         if on_reward_callback:
             on_reward_callback()
-
