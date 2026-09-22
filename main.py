@@ -13,11 +13,16 @@ from ui import draw_all
 from login_screen import show_auth_screen
 from auth_manager import get_user_display_name, logout_user, get_current_user
 import random, string
-import os
+import os, sys
+
+# Set Base Path for Android Assets Safe Loading
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
-try: pygame.mixer.init()
-except: print("[AUDIO] Mixer disabled")
+try: 
+    pygame.mixer.init()
+except Exception as e: 
+    print(f"[AUDIO] Mixer disabled: {e}")
 
 W, H = 720, 1280
 screen = pygame.display.set_mode((W, H))
@@ -32,23 +37,33 @@ config.HINT_COST = 15
 wallet = Wallet()
 
 def do_login_flow():
-    logged_email = show_auth_screen(screen, W, H, config)
-    if logged_email:
-        wallet.data['email'] = logged_email
-        wallet.data['is_gmail_user'] = True
-        if not wallet.data.get('referral_code'):
-            wallet.data['referral_code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
-        wallet.save()
+    try:
+        logged_email = show_auth_screen(screen, W, H, config)
+        if logged_email:
+            wallet.data['email'] = logged_email
+            wallet.data['is_gmail_user'] = True
+            if not wallet.data.get('referral_code'):
+                wallet.data['referral_code'] = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            wallet.save()
+            return True
+        else:
+            # Guest mode fallback instead of crashing app
+            wallet.data['email'] = "guest_user@app.com"
+            wallet.data['is_gmail_user'] = True
+            wallet.save()
+            return True
+    except Exception as err:
+        print(f"[LOGIN ERROR] {err}")
         return True
-    else:
-        pygame.quit(); exit()
 
 if not wallet.data.get('is_gmail_user') or not wallet.data.get('email'):
     do_login_flow()
 
 gs = GameState(W, H)
-try: sounds.load(wallet.data.get("muted", False))
-except: pass
+try: 
+    sounds.load(wallet.data.get("muted", False))
+except Exception as e: 
+    print(f"[SOUND ERROR] {e}")
 
 fix_board_pos(gs, config.INNER_W, config.INNER_X, H)
 
@@ -62,7 +77,8 @@ try:
             if gs.board[r][c] in ('START', 'END', 'BLOCK'):
                 gs.locked[r][c] = True
     gs.current_pipe = None; gs.get_next_pipe()
-except:
+except Exception as e:
+    print(f"[LEVEL GEN ERROR] {e}")
     gs.level = int(wallet.data.get("level", 1))
     fix_board_pos(gs, config.INNER_W, config.INNER_X, H)
 
@@ -79,11 +95,12 @@ coins_to_give = 20
 
 while running:
     for e in pygame.event.get():
-        if e.type == pygame.QUIT: running = False
-        if e.type == pygame.MOUSEMOTION: mx, my = e.pos
+        if e.type == pygame.QUIT: 
+            running = False
+        if e.type == pygame.MOUSEMOTION: 
+            mx, my = e.pos
         if e.type == pygame.MOUSEBUTTONDOWN:
             mx, my = e.pos
-            # Banner par click ko ignore karo (Real AdMob khud handle karega)
             if hasattr(ad_manager, 'banner_rect') and ad_manager.banner_rect.collidepoint(mx, my):
                 continue
 
@@ -110,14 +127,11 @@ while running:
                     try: sounds.play_click()
                     except: pass
                     def give_double():
-                        # === FINAL 300% ANTI-FARM LOGIC ===
                         max_lvl = wallet.data.get("max_level", 1)
                         if gs.level >= max_lvl:
                             wallet.add_coins(20)
-                            print(f"[REWARD] New Level {gs.level} = +20C (300% Profit Safe)")
                         else:
                             wallet.add_coins(5)
-                            print(f"[REWARD] Old Level Replay = +5C Only - Anti Farm")
                         try:
                             ref = ReferralSystem(wallet)
                             ref.on_ad_watched(20)
@@ -125,7 +139,6 @@ while running:
                             print(f"Referral error: {ex}")
                         load_level(gs.level+1, gs, wallet, config.INNER_W, config.INNER_X, H)
 
-                    # === REAL AD CALL - APK me Original Google Ad ayega ===
                     ad_manager.start_ad(callback=give_double, reward=coins_to_give)
                     show_win_popup = False; selected_cell = None; wrong_highlight.clear()
                 continue
@@ -168,7 +181,6 @@ while running:
                                     try: gs.tray.remove(cp)
                                     except: pass
                                 break
-                    # === HINT REAL AD ===
                     ad_manager.start_ad(callback=give_hint, reward=0); continue
                 if flow_btn.collidepoint(e.pos):
                     try: sounds.play_click()
@@ -297,8 +309,6 @@ while running:
             except: pass
             gs.flow_active = False; show_win_popup = True
 
-    # === FINAL BANNER LOGIC - Pydroid me clean, APK me Real AdMob ===
-    # draw_banner ab andar se hi return kar dega - clean window
     try:
         ad_manager.draw_banner(screen)
     except: pass
