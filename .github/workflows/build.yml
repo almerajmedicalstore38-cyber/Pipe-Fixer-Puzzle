@@ -61,7 +61,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android NDK (Fix 404 Error)
+      - name: Setup Android NDK
         run: |
           mkdir -p $HOME/android-ndk
           cd $HOME/android-ndk
@@ -93,6 +93,8 @@ jobs:
       - name: Build APK with Buildozer
         run: |
           export ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b
+          export CFLAGS="-Wno-incompatible-pointer-types -Wno-discarded-qualifiers"
+          export CXXFLAGS="-Wno-incompatible-pointer-types -Wno-discarded-qualifiers"
           yes | buildozer -v android debug
 
       - name: Upload APK Artifact
