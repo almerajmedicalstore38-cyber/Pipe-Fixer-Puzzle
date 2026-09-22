@@ -21,7 +21,7 @@ jobs:
           rm -rf ~/.local/share/python-for-android
           df -h
 
-      - name: Install System Dependencies for Buildozer
+      - name: Install System Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -61,6 +61,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Android NDK (Fix 404 Error)
+        run: |
+          mkdir -p $HOME/android-ndk
+          cd $HOME/android-ndk
+          wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O ndk.zip
+          unzip -q ndk.zip
+          echo "ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b" >> $GITHUB_ENV
+
       - name: Cache Buildozer & Gradle Dependencies
         uses: actions/cache@v4
         with:
@@ -84,7 +92,7 @@ jobs:
 
       - name: Build APK with Buildozer
         run: |
-          # Automatically accept licenses and run buildozer in verbose mode
+          export ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b
           yes | buildozer -v android debug
 
       - name: Upload APK Artifact
