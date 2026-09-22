@@ -9,7 +9,7 @@ source.include_exts = py,png,jpg,jpeg,ttf,otf,wav,mp3,ogg,json
 source.include_dirs = assets
 version = 1.0.0
 
-# Requirements & Bootstraps (Fixed line below)
+# Requirements & Bootstraps
 requirements = python3,pygame,pyjnius,openssl,requests,urllib3,certifi,charset_normalizer,idna
 p4a.bootstrap = sdl2
 
@@ -21,6 +21,9 @@ android.api = 33
 android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a
+
+# Compiler Fixes for Pointer Warnings/Errors
+p4a.extra_args = --cflags="-Wno-incompatible-pointer-types -Wno-discarded-qualifiers"
 
 # AdMob SDK Integration
 android.gradle_dependencies = com.google.android.gms:play-services-ads:22.6.0
