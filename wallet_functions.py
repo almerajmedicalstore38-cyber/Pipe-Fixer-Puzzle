@@ -1,16 +1,15 @@
-# wallet_functions.py - FINAL 300% PROFIT - BY SHTEDITOR
+# wallet_functions.py - SECURE ONLINE-ONLY SAVE - BY SHTEDITOR
 import json, os
 import threading
 import requests
 
 class Wallet:
-    LEVEL_REWARD = 5       # FINAL - Old Level Replay = 5C (Anti-Farm)
-    DOUBLE_REWARD = 20     # FINAL - New Level Ad = 20C = $0.01
+    LEVEL_REWARD = 5       # Old Level Replay = 5C (Anti-Farm)
+    DOUBLE_REWARD = 20     # New Level Ad = 20C
     REPLAY_REWARD = 5      # Old level = 5C
-    HINT_COST = 15         # FINAL - Hint 15C (Tumhe profit)
+    HINT_COST = 15         # Hint 15C
 
     def __init__(self, filename="wallet.json"):
-        # Android Internal Private Storage Path Safe Fix
         base_dir = os.environ.get('ANDROID_PRIVATE', os.path.dirname(os.path.abspath(__file__)))
         self.path = os.path.join(base_dir, filename)
         self.wallet_data_path = os.path.join(base_dir, "wallet_data.json")
@@ -19,7 +18,7 @@ class Wallet:
         self.data = {
             "coins": 0,
             "level": 1,
-            "max_level": 1,  # === ANTI-FARM TRACKER ===
+            "max_level": 1,
             "muted": False,
             "email": "",
             "is_gmail_user": False,
@@ -29,6 +28,11 @@ class Wallet:
             "withdraw_history": []
         }
         self.load()
+
+    def is_guest(self):
+        # Security Check: Guest user ya empty email detection
+        email = self.data.get("email", "").strip().lower()
+        return not email or email == "guest_user@app.com" or "guest" in email
 
     def load(self):
         try:
@@ -49,6 +53,13 @@ class Wallet:
             print(f"[WALLET LOAD ERROR] {e}")
 
     def save(self):
+        # === ANTI-HACK SECURITY GUARD ===
+        # Guest ya Offline User ka progress local disk par SAVE NAHI HOGA
+        if self.is_guest():
+            print("[SECURITY] Guest/Offline mode detected. Progress will NOT be saved to disk.")
+            return
+
+        # Pure Legitimate Authenticated Users Only
         try:
             with open(self.path, "w") as f:
                 json.dump(self.data, f)
@@ -57,11 +68,11 @@ class Wallet:
         except Exception as e:
             print(f"[WALLET SAVE ERROR] {e}")
 
-        # === FIREBASE LIVE SYNC IN BACKGROUND THREAD (PREVENT FREEZE/BLACK SCREEN) ===
+        # === FIREBASE LIVE SYNC IN BACKGROUND THREAD ===
         def sync_firebase():
             try:
                 email = self.data.get('email', '')
-                if email:
+                if email and not self.is_guest():
                     project_id = "coin-wallet-pro"
                     safe_email = email.replace(".", "_").replace("@", "_").replace("-", "_")
                     url = f"https://firestore.googleapis.com/v1/projects/{project_id}/databases/(default)/documents/users/{safe_email}"
@@ -71,6 +82,7 @@ class Wallet:
                             with open(self.user_name_path, "r") as f:
                                 name = json.load(f).get("name", "")
                     except: pass
+                    
                     payload = {
                         "fields": {
                             "email": {"stringValue": email},
@@ -85,7 +97,6 @@ class Wallet:
             except Exception as ex:
                 print(f"[FIREBASE SYNC ERROR] {ex}")
 
-        # Non-blocking async thread run
         threading.Thread(target=sync_firebase, daemon=True).start()
 
     def add_coins(self, amount):
