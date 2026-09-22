@@ -3,6 +3,7 @@ import functions as logic, gui, math
 from game_state import GameState, GRID
 from wallet_functions import Wallet
 from ad_manager import AdManager
+from admob_bridge import init_admob  # Native AdMob Bridge Import
 import config, sounds
 import wallet_pro_gui as wallet_gui
 from firebase_manager_lite import FirebaseManager
@@ -19,6 +20,13 @@ import os, sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
+
+# Initialize Google AdMob Engine
+try:
+    init_admob()
+except Exception as e:
+    print(f"[ADMOB INIT ERROR] {e}")
+
 try: 
     pygame.mixer.init()
 except Exception as e: 
@@ -87,7 +95,7 @@ ad_manager = AdManager(W, H)
 show_level_select = show_win_popup = False
 level_btns = []; level_close_rect = pygame.Rect(0, 0, 0, 0)
 wallet_btn = coins_btn = mute_btn = lvl_btn = pygame.Rect(0, 0, 0, 0)
-claim_btn = double_btn = None  # FIX: Global definition to prevent UnboundLocalError
+claim_btn = double_btn = None  # Global definition to prevent UnboundLocalError
 wrong_highlight = []; selected_cell = None
 running = True; mx, my = pygame.mouse.get_pos()
 
@@ -320,4 +328,3 @@ while running:
     clock.tick(60)
 
 pygame.quit()
-
