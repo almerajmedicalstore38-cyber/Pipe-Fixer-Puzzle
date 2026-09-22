@@ -1,4 +1,4 @@
-Name: Pipe Fixer P4A Final Build
+name: Pipe Fixer P4A Final Build
 
 on:
   workflow_dispatch:
