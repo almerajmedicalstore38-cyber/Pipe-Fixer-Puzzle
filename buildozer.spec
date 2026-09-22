@@ -1,103 +1,35 @@
-name: Pipe Fixer Buildozer Final Build
+[app]
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+# Application Info
+title = Pipe Fixer
+package.name = pipefixer
+package.domain = com.sharafat
+source.dir = .
+source.include_exts = py,png,jpg,jpeg,ttf,otf,wav,mp3,ogg,json
+source.include_dirs = assets
+version = 1.0.0
 
-jobs:
-  build:
-    runs-on: ubuntu-22.04
-    timeout-minutes: 80
+# Requirements & Bootstraps
+requirements = python3,pygame,pyjnius,android,openssl,requests,urllib3,certifi,charset_normalizer,idna
+p4a.bootstrap = sdl2
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+# Permissions
+android.permissions = INTERNET, ACCESS_NETWORK_STATE
 
-      - name: Free Disk Space
-        run: |
-          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/share/boost "$AGENT_TOOLSDIRECTORY"
-          rm -rf ~/.local/share/python-for-android
-          df -h
+# Android API & NDK Configuration
+android.api = 33
+android.minapi = 21
+android.ndk = 25b
+android.archs = arm64-v8a
 
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            ffmpeg \
-            libffi-dev \
-            libssl-dev \
-            ccache \
-            libsdl2-dev \
-            libsdl2-image-dev \
-            libsdl2-mixer-dev \
-            libsdl2-ttf-dev \
-            libportmidi-dev \
-            libswscale-dev \
-            libavformat-dev \
-            libavcodec-dev \
-            zlib1g-dev \
-            autoconf \
-            automake \
-            libtool \
-            pkg-config \
-            zip \
-            unzip \
-            curl \
-            lld \
-            openjdk-17-jdk
+# AdMob SDK Integration
+android.gradle_dependencies = com.google.android.gms:play-services-ads:22.6.0
+android.meta_data = com.google.android.gms.ads.APPLICATION_ID=ca-app-pub-3940256099942544~3347511713
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+# Android Settings
+android.copy_libs = 1
+android.enable_androidx = True
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android NDK (Fix 404 Error)
-        run: |
-          mkdir -p $HOME/android-ndk
-          cd $HOME/android-ndk
-          wget -q https://dl.google.com/android/repository/android-ndk-r25b-linux.zip -O ndk.zip
-          unzip -q ndk.zip
-          echo "ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b" >> $GITHUB_ENV
-
-      - name: Cache Buildozer & Gradle Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer
-            .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
-      - name: Install Buildozer & Cython
-        run: |
-          pip install --upgrade pip setuptools wheel
-          pip install Cython==0.29.36
-          pip install buildozer
-
-      - name: Create Assets Nomedia
-        run: |
-          mkdir -p assets
-          touch assets/.nomedia
-
-      - name: Build APK with Buildozer
-        run: |
-          export ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b
-          yes | buildozer -v android debug
-
-      - name: Upload APK Artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: PipeFixer-Buildozer-APK
-          path: bin/*.apk
+[buildozer]
+log_level = 2
+warn_on_root = 1
