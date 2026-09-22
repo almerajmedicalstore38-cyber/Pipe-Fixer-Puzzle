@@ -76,7 +76,7 @@ jobs:
             --version=1.0 \
             --numeric-version=1 \
             --bootstrap=sdl2 \
-            --requirements=python3,pygame,pyjnius,android \
+            --requirements=python3,pygame,pyjnius,android,requests,urllib3,certifi \
             --arch=arm64-v8a \
             --permission INTERNET \
             --permission ACCESS_NETWORK_STATE \
