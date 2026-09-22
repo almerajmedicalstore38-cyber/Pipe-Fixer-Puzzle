@@ -1,6 +1,13 @@
 import requests
 import json
 import os
+import ssl
+
+# Android SSL Certificate Crash Bypass Fix
+try:
+    ssl._create_default_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
 
 class FirebaseManager:
     def __init__(self):
@@ -15,7 +22,8 @@ class FirebaseManager:
         try:
             url = f"{self.base_url}/users/{email}"
             payload = {"fields": self._to_fields(data)}
-            r = requests.patch(url, json=payload)
+            # Timeout aur verify=False add kiya gaya hai crash rokne ke liye
+            r = requests.patch(url, json=payload, timeout=5, verify=False)
             return r.status_code in [200, 201]
         except Exception as e:
             print(f"Save error: {e}")
@@ -23,7 +31,6 @@ class FirebaseManager:
 
     def get_user_by_code(self, code):
         try:
-            # Query: where referral_code == code
             url = f"{self.base_url}:runQuery"
             query = {
                 "structuredQuery": {
@@ -38,16 +45,17 @@ class FirebaseManager:
                     "limit": 1
                 }
             }
-            r = requests.post(url, json=query)
+            r = requests.post(url, json=query, timeout=5, verify=False)
             if r.status_code == 200 and r.json():
                 return True
             return False
-        except:
+        except Exception as e:
+            print(f"Query error: {e}")
             return False
 
     def _to_fields(self, data):
         fields = {}
-        for k,v in data.items():
+        for k, v in data.items():
             if isinstance(v, str):
                 fields[k] = {"stringValue": v}
             elif isinstance(v, int):
