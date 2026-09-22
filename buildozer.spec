@@ -9,8 +9,8 @@ source.include_exts = py,png,jpg,jpeg,ttf,otf,wav,mp3,ogg,json
 source.include_dirs = assets
 version = 1.0.0
 
-# Requirements & Bootstraps
-requirements = python3,pygame,pyjnius,android,openssl,requests,urllib3,certifi,charset_normalizer,idna
+# Requirements & Bootstraps (Fixed line below)
+requirements = python3,pygame,pyjnius,openssl,requests,urllib3,certifi,charset_normalizer,idna
 p4a.bootstrap = sdl2
 
 # Permissions
