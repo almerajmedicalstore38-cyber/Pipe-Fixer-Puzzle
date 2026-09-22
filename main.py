@@ -87,6 +87,7 @@ ad_manager = AdManager(W, H)
 show_level_select = show_win_popup = False
 level_btns = []; level_close_rect = pygame.Rect(0, 0, 0, 0)
 wallet_btn = coins_btn = mute_btn = lvl_btn = pygame.Rect(0, 0, 0, 0)
+claim_btn = double_btn = None  # FIX: Global definition to prevent UnboundLocalError
 wrong_highlight = []; selected_cell = None
 running = True; mx, my = pygame.mouse.get_pos()
 
@@ -166,7 +167,7 @@ while running:
                         else: pygame.mixer.music.unpause()
                     except: pass
                     continue
-                if hint_btn.collidepoint(e.pos) and not ad_manager.is_playing:
+                if 'hint_btn' in locals() and hint_btn.collidepoint(e.pos) and not ad_manager.is_playing:
                     try: sounds.play_click()
                     except: pass
                     def give_hint():
@@ -182,7 +183,7 @@ while running:
                                     except: pass
                                 break
                     ad_manager.start_ad(callback=give_hint, reward=0); continue
-                if flow_btn.collidepoint(e.pos):
+                if 'flow_btn' in locals() and flow_btn.collidepoint(e.pos):
                     try: sounds.play_click()
                     except: pass
                     if gs.current_pipe is not None or len(gs.tray) > 0:
@@ -199,13 +200,13 @@ while running:
                         except: pass
                         gs.flow_active = True; gs.win_path = gs.path; gs.anim = 0
                     continue
-                if undo_btn.collidepoint(e.pos):
+                if 'undo_btn' in locals() and undo_btn.collidepoint(e.pos):
                     try: sounds.play_click()
                     except: pass
                     if selected_cell: gs.undo_specific(*selected_cell); selected_cell = None
                     else: gs.undo_last()
                     continue
-                if pygame.Rect(box_x, box_y, box_size, box_size).collidepoint(e.pos) and gs.current_pipe:
+                if 'box_x' in locals() and pygame.Rect(box_x, box_y, box_size, box_size).collidepoint(e.pos) and gs.current_pipe:
                     try: sounds.play_click()
                     except: pass
                     gs.drag = gs.current_pipe; continue
@@ -255,7 +256,6 @@ while running:
     if gs.drag:
         gui.draw_pipe(screen, logic.PIPES, gs.drag, mx-gs.CELL//2, my-gs.CELL//2-config.DRAG_OFFSET, gs.CELL, is_tray=True, valid_hint=hover_valid)
 
-    claim_btn = double_btn = None
     if show_win_popup and not show_level_select:
         overlay = pygame.Surface((W, H)); overlay.fill((0, 0, 0)); overlay.set_alpha(180); screen.blit(overlay, (0, 0))
         pop_w, pop_h = int(config.INNER_W*0.92), int(H*0.32); pop_x = config.INNER_X+(config.INNER_W-pop_w)//2; pop_y = H//2-pop_h//2
@@ -320,3 +320,4 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+
