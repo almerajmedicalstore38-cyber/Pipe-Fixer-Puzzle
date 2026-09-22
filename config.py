@@ -3,7 +3,8 @@ import pygame
 # === APP INFO ===
 APP_NAME = "Pipe Fixer Puzzle"
 APP_DEV = "SHTEDITOR"
-PACKAGE_NAME = "com.shteditor.pipefixerpuzzle"
+# Workflow (--package=com.sharafat.pipefixer) ke saath sync kar diya gaya hai
+PACKAGE_NAME = "com.sharafat.pipefixer"
 
 # === 300% PROFIT LOGIC ===
 LEVEL_REWARD = 5
