@@ -1,4 +1,4 @@
-name: Pipe Fixer P4A Final Build
+name: Pipe Fixer Buildozer Final Build
 
 on:
   workflow_dispatch:
@@ -12,7 +12,8 @@ jobs:
     timeout-minutes: 80
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Free Disk Space
         run: |
@@ -20,13 +21,37 @@ jobs:
           rm -rf ~/.local/share/python-for-android
           df -h
 
-      - name: Install System Dependencies
+      - name: Install System Dependencies for Buildozer
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libffi-dev libssl-dev ccache libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev autoconf automake libtool pkg-config zip unzip curl lld
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            ffmpeg \
+            libffi-dev \
+            libssl-dev \
+            ccache \
+            libsdl2-dev \
+            libsdl2-image-dev \
+            libsdl2-mixer-dev \
+            libsdl2-ttf-dev \
+            libportmidi-dev \
+            libswscale-dev \
+            libavformat-dev \
+            libavcodec-dev \
+            zlib1g-dev \
+            autoconf \
+            automake \
+            libtool \
+            pkg-config \
+            zip \
+            unzip \
+            curl \
+            lld \
+            openjdk-17-jdk
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -36,59 +61,35 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
+      - name: Cache Buildozer & Gradle Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.buildozer
+            .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
+
+      - name: Install Buildozer & Cython
         run: |
-          SDK_ROOT=$HOME/android-sdk
-          rm -rf $SDK_ROOT
-          mkdir -p $SDK_ROOT/cmdline-tools
-          cd /tmp
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O tools.zip
-          unzip -q tools.zip -d $SDK_ROOT/cmdline-tools
-          mv $SDK_ROOT/cmdline-tools/cmdline-tools $SDK_ROOT/cmdline-tools/latest
-          export PATH=$SDK_ROOT/cmdline-tools/latest/bin:$PATH
-          export ANDROID_SDK_ROOT=$SDK_ROOT
-          export ANDROID_HOME=$SDK_ROOT
-          yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25.1.8937393"
-          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> $GITHUB_ENV
-          echo "ANDROID_HOME=$SDK_ROOT" >> $GITHUB_ENV
-          echo "$SDK_ROOT/cmdline-tools/latest/bin:$SDK_ROOT/platform-tools" >> $GITHUB_PATH
+          pip install --upgrade pip setuptools wheel
+          pip install Cython==0.29.36
+          pip install buildozer
 
       - name: Create Assets Nomedia
         run: |
           mkdir -p assets
           touch assets/.nomedia
 
-      - name: Install p4a STABLE VERSION
+      - name: Build APK with Buildozer
         run: |
-          pip install --upgrade pip wheel setuptools
-          pip install Cython==0.29.36
-          pip install python-for-android==2023.5.21
+          # Automatically accept licenses and run buildozer in verbose mode
+          yes | buildozer -v android debug
 
-      - name: Build APK
-        run: |
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export ANDROID_HOME=$HOME/android-sdk
-          p4a apk \
-            --private . \
-            --package=com.sharafat.pipefixer \
-            --name="Pipe Fixer" \
-            --version=1.0 \
-            --numeric-version=1 \
-            --bootstrap=sdl2 \
-            --requirements=python3,pygame,pyjnius,android,openssl,requests,urllib3,certifi,charset_normalizer,idna \
-            --arch=arm64-v8a \
-            --permission INTERNET \
-            --permission ACCESS_NETWORK_STATE \
-            --meta-data "com.google.android.gms.ads.APPLICATION_ID=ca-app-pub-3940256099942544~3347511713" \
-            --ndk-dir $HOME/android-sdk/ndk/25.1.8937393 \
-            --android-api 33 \
-            --copy-libs \
-            --dist-name=pipefixer
-
-      - name: Upload APK
+      - name: Upload APK Artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: PipeFixer-APK
-          path: "*.apk"
+          name: PipeFixer-Buildozer-APK
+          path: bin/*.apk
