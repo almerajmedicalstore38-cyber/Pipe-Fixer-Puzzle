@@ -16,12 +16,12 @@ from auth_manager import get_user_display_name, logout_user, get_current_user
 import random, string
 import os, sys
 
-# Set Base Path for Android Assets Safe Loading
+# Base Path Setup for Safe Android Assets Loading
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 pygame.init()
 
-# Initialize Google AdMob Engine
+# Native AdMob Engine Initialization
 try:
     init_admob()
 except Exception as e:
@@ -37,7 +37,7 @@ screen = pygame.display.set_mode((W, H))
 config.init(W, H)
 clock = pygame.time.Clock()
 
-# === 300% PROFIT FINAL ===
+# === Game Rewards Configuration ===
 config.DOUBLE_REWARD = 20
 config.REPLAY_REWARD = 5
 config.HINT_COST = 15
@@ -55,7 +55,7 @@ def do_login_flow():
             wallet.save()
             return True
         else:
-            # Guest mode fallback instead of crashing app
+            # Guest mode fallback
             wallet.data['email'] = "guest_user@app.com"
             wallet.data['is_gmail_user'] = True
             wallet.save()
@@ -95,11 +95,10 @@ ad_manager = AdManager(W, H)
 show_level_select = show_win_popup = False
 level_btns = []; level_close_rect = pygame.Rect(0, 0, 0, 0)
 wallet_btn = coins_btn = mute_btn = lvl_btn = pygame.Rect(0, 0, 0, 0)
-claim_btn = double_btn = None  # Global definition to prevent UnboundLocalError
+claim_btn = double_btn = None
 wrong_highlight = []; selected_cell = None
 running = True; mx, my = pygame.mouse.get_pos()
 
-# === 300% PROFIT - REWARD VARIABLE ===
 coins_to_give = 20
 
 while running:
