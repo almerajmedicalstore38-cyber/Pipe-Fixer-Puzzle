@@ -69,16 +69,6 @@ jobs:
           unzip -q ndk.zip
           echo "ANDROID_NDK_HOME=$HOME/android-ndk/android-ndk-r25b" >> $GITHUB_ENV
 
-      - name: Cache Buildozer & Gradle Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer
-            .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
-
       - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip setuptools wheel
