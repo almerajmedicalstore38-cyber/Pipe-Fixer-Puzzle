@@ -1,4 +1,4 @@
-name: Pipe Fixer P4A Final Build
+Name: Pipe Fixer P4A Final Build
 
 on:
   workflow_dispatch:
@@ -76,11 +76,10 @@ jobs:
             --version=1.0 \
             --numeric-version=1 \
             --bootstrap=sdl2 \
-            --requirements=python3,pygame,pyjnius,android,requests,urllib3,certifi \
+            --requirements=python3,pygame,pyjnius,android,openssl,requests,urllib3,certifi,charset_normalizer,idna \
             --arch=arm64-v8a \
             --permission INTERNET \
             --permission ACCESS_NETWORK_STATE \
-            --icon=assets/icon.png \
             --ndk-dir $HOME/android-sdk/ndk/25.1.8937393 \
             --android-api 33 \
             --copy-libs \
