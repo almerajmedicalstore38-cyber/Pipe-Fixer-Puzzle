@@ -1,19 +1,39 @@
 name: Build Android APK
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
-    - run: |
-        sudo apt update && sudo apt install -y build-essential libffi-dev libssl-dev ccache git zip unzip openjdk-17-jdk python3-pip
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential libffi-dev libssl-dev ccache git zip unzip openjdk-17-jdk python3-pip
+
+    - name: Install Python Packages
+      run: |
+        pip install --upgrade pip
         pip install buildozer cython==0.29.36
-        buildozer -v android debug
-    - uses: actions/upload-artifact@v4
+
+    - name: Accept Android SDK Licenses & Build APK
+      run: |
+        yes | buildozer -v android debug
+      env:
+        ACCEPT_BUILD_TOOLS_CHECKSUM: "true"
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: app-debug-apk
         path: bin/*.apk
