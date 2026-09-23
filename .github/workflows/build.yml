@@ -19,7 +19,7 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential libffi-dev libssl-dev ccache git zip unzip openjdk-17-jdk python3-pip
+        sudo apt install -y build-essential libffi-dev libssl-dev ccache git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev
 
     - name: Install Python Packages
       run: |
