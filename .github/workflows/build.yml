@@ -26,10 +26,42 @@ jobs:
         pip install --upgrade pip
         pip install buildozer cython==0.29.36
 
-    - name: Build APK Cleanly
+    - name: Try Building APK with Requirements Combinations
       run: |
-        rm -rf .buildozer/
-        yes | buildozer android debug
+        # Matrix combinations to try sequentially
+        COMBINATIONS=(
+          "python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests"
+          "python3==3.11.5,hostpython3==3.11.5,kivy,pyjnius,android,requests"
+          "python3==3.11.5,hostpython3==3.11.5,kivy,pygame,pyjnius,android,requests"
+        )
+
+        SUCCESS=0
+
+        for req in "${COMBINATIONS[@]}"; do
+          echo "=================================================="
+          echo "TRYING REQUIREMENTS: $req"
+          echo "=================================================="
+          
+          # Update requirements line in buildozer.spec
+          sed -i "s|^requirements =.*|requirements = $req|" buildozer.spec
+          
+          # Clean build folder before each attempt
+          rm -rf .buildozer/
+          
+          # Attempt build
+          if yes | buildozer android debug; then
+            echo "BUILD SUCCESSFUL WITH: $req"
+            SUCCESS=1
+            break
+          else
+            echo "BUILD FAILED WITH: $req. TRYING NEXT COMBINATION..."
+          fi
+        done
+
+        if [ $SUCCESS -ne 1 ]; then
+          echo "ALL COMBINATIONS FAILED!"
+          exit 1
+        fi
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
