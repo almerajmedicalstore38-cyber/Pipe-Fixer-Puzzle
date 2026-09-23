@@ -9,7 +9,6 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,wav,ogg,mp3,json
 source.exclude_dirs = tests, bin, venv, .buildozer
 
-#requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests
 requirements = python3==3.11.5,hostpython3==3.11.5,kivy,pygame-bootstrap,pyjnius,android,requests
 
 orientation = portrait
@@ -18,13 +17,14 @@ android.permissions = INTERNET,ACCESS_NETWORK_STATE
 android.api = 33
 android.minapi = 21
 android.ndk_api = 21
+android.ndk = 25b
 android.gradle_dependencies = com.google.android.gms:play-services-ads:22.6.0
 android.archs = arm64-v8a
 android.allow_backup = True
 android.private_storage = True
 
-# Compilation error (grp/C99) ko bypass karne ke liye
-android.cipher_flags = -Wno-implicit-function-declaration
+# C99 compiler warnings aur grp error bypass karne ke liye
+android.extra_p4a_args = --cflags="-Wno-implicit-function-declaration"
 
 [buildozer]
 log_level = 1
