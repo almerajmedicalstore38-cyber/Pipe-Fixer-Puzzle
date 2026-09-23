@@ -9,7 +9,8 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,wav,ogg,mp3,json
 source.exclude_dirs = tests, bin, venv, .buildozer
 
-requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests
+#requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests
+requirements = python3==3.11.5,hostpython3==3.11.5,kivy,pygame-bootstrap,pyjnius,android,requests
 
 orientation = portrait
 fullscreen = 1
