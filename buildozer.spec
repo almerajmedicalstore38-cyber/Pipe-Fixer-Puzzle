@@ -8,7 +8,7 @@ version = 1.0.0
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,wav,ogg,mp3,json
 
-requirements = python3,pygame,pyjnius,android,requests
+requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests
 
 orientation = portrait
 fullscreen = 1
