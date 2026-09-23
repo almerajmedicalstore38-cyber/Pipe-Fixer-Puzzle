@@ -7,6 +7,7 @@ version = 1.0.0
 
 source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,wav,ogg,mp3,json
+source.exclude_dirs = tests, bin, venv, .buildozer
 
 requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,requests
 
@@ -25,5 +26,5 @@ android.private_storage = True
 android.cipher_flags = -Wno-implicit-function-declaration
 
 [buildozer]
-log_level = 2
+log_level = 1
 warn_on_root = 1
