@@ -13,13 +13,16 @@ requirements = python3==3.11.5,hostpython3==3.11.5,pygame,pyjnius,android,reques
 orientation = portrait
 fullscreen = 1
 android.permissions = INTERNET,ACCESS_NETWORK_STATE
-android.api = 34
-android.minapi = 23
+android.api = 33
+android.minapi = 21
 android.ndk = 25b
 android.gradle_dependencies = com.google.android.gms:play-services-ads:22.6.0
 android.archs = arm64-v8a
-android.androidx = True
+android.allow_backup = True
 android.private_storage = True
+
+# Compilation error (grp/C99) ko bypass karne ke liye
+android.cipher_flags = -Wno-implicit-function-declaration
 
 [buildozer]
 log_level = 2
